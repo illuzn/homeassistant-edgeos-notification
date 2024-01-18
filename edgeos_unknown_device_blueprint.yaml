@@ -160,18 +160,19 @@ action:
   - variables:
       new_dict: "{{ trigger.to_state.attributes.leased | default({}) }}"
       old_dict: "{{ trigger.from_state.attributes.leased | default({}) }}"
+      known_device_macs: !input Iknown_devices_macs
       connected: >-
         {%- for item in new_dict %}
-        {%- if item in old_dict %}
+        {%- if item in old_dict or newdict[item].MAC in known_device_macs %}
         {%- else %}
         {{- item ~ ' - hostname: ' ~ new_dict[item].name ~ ', MAC: ' ~ new_dict[item].MAC ~ '\n' }}
         {%- endif %}
         {%- endfor %}
       disconnected: >-
         {%- for item in old_dict %}
-        {%- if item in new_dict %}
+        {%- if item in new_dict or old_dict[item].MAC in known_device_macs %}
         {%- else %}
-        {{- item ~ ' - hostname: ' ~ new_dict[item].name ~ ', MAC: ' ~ new_dict[item].MAC ~ '\n' }}
+        {{- item ~ ' - hostname: ' ~ old_dict[item].name ~ ', MAC: ' ~ old_dict[item].MAC ~ '\n' }}
         {%- endif %}
         {%- endfor %}
       notify_service_target: !input Inotify_service_target
