@@ -139,7 +139,7 @@ mode: single
 
 trigger: 
   - platform: state
-    entity_id: !input edgeos_sensor
+    entity_id: !input Iedgeos_sensor
     attribute: leased
 
 action:
@@ -175,7 +175,7 @@ action:
         Unknown Device(s) Detected
         {% endif %}
       connect_enable: !input Iconnect_enable
-      disconnect_enable: !input Iconnect_disable
+      disconnect_enable: !input Idisconnect_enable
       notification_message_override: !input Inotification_message 
       notify_message: >-
         {% if notification_message_override %}
