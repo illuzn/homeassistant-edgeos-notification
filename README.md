@@ -13,3 +13,5 @@ Prerequisites:
 Import `edgeos_unknown_device_blueprint.yaml` yourself manually or:
 
 [![Import blueprint to Home Assistant](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Filluzn%2Fhomeassistant-edgeos-notification%2Fblob%2Fmain%2Fedgeos_unknown_device_blueprint.yaml)
+
+To update your blueprint, in Home Assistant, open the dropdown menu next to this blueprint and select "Re-import blueprint".
