@@ -137,7 +137,6 @@ blueprint:
     Inotification_message:
       name: Notification Message
       description: >-
-        {% raw %}
         The message to be displayed for your notifications (common among all platforms).
         Leave blank to use the default message which is:
         [Connect Enabled]: The following unknown devices have connected to the network:
@@ -145,7 +144,6 @@ blueprint:
         [Disconnect Enabled]: The following unknown devices have disconnected from the network:
         {{ disconnected }}
         The above mustache templates may also be used in your custom messages.
-        {% endraw %}
       selector:
         text:
           multiline: true
@@ -212,9 +210,11 @@ action:
         {%- if connect_enable %}
         {%- if connected is defined and connected is string and connected != "" %}
         true
+        {%- endif %}
         {%- elif disconnect_enable %}
         {%- if disconnected is defined and disconnected is string and disconnected != "" %}
         true
+        {%- endif %}
         {%- else %}
         false
         {%- endif %}
