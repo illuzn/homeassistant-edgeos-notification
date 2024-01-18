@@ -102,7 +102,7 @@ blueprint:
         If turned on, will provide a persistent notification via Home Assistant to all users.
         This appears when logged into Home Assistant under the notification bell. Default: false/ off
       selector:
-        boolean
+        boolean:
       default: false
     Ipersistent_notification_service_notification_id:
       name: Persistent Notification Service Notification ID
