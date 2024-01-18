@@ -1,0 +1,227 @@
+blueprint:
+  name: EdgeOS Unknown Devices Notification
+  description: >-
+    Generates a notification (notify.notify or notify.persistent_notification) upon an
+    unknown device connecting to your network. Can also be configured to provide a
+    notification when any device connects or disconnects from the network.
+  domain: automation
+  input:
+    Iedgeos_sensor:
+      name: EdgeOS Sensor
+      description: >-
+        The EdgeOS Unknown Devices Sensor typically called 
+        `sensor.[your_device_name]_unknown_devices. 
+        This must be enabled and reporting correctly.
+        Required - this automation will not function without
+        this set.
+      selector:
+        entity:
+          filter:
+            domain: sensor
+      default: []
+    Iknown_devices_macs:
+      name:  Known Device MACs
+      description: >- 
+        A list of known device MACs (these will be ignored). If you want to be notified of
+        all connections/ disconnections, leave this blank. MACs should be supplied in
+        aa:bb:cc:dd:ee:ff:gg format and seperated by a new line.
+      selector:
+        text:
+          multiple: true
+      default: []
+
+    Iconnect_enable:
+      name: Enable Connect Notification
+      description: >-
+        If turned on, will enable notifications for unknown device connections (default: true/ on).
+      selector:
+        boolean:
+      default: true
+    Idisconnect_enable:
+      name: Enable Disconnect Notification
+      description: >-
+        If turned on, will enable notifications for device disconnections (default: false/ off).
+      selector:
+        boolean:
+      default: false
+
+    Inotify_service:
+      name: Enable Notify Service
+      description: >-
+        If turned on, will provide a notification toast on the specified mobile phones using
+        the specified channel below (default: true/ on). For example, on a mobile device, this will
+        appear in the notification shade. This calls the notify.mobile_app service (and accordingly)
+        requires the mobile_app to be included.
+      selector:
+        boolean:
+      default: true
+    Inotify_service_target:
+      name: Notify Service Target
+      description: >-
+        The target devices for the notify service. This is the bracketed portion of 
+        notify.mobile_app_[device name]. Do not include the square brackets. More 
+        than 1 device may be specified by using a new line.
+      selector:
+        text:
+          prefix: "notify.mobile_app_"
+          multiple: true
+      default: []
+    Inotify_service_data:
+      name: Notify Service Data
+      description: >-
+        Service data to provide to the notify.mobile_app service. This is passed to the service
+        unprocessed, so incorrect data here may cause errors. Typical examples include:
+        "channel": "Channel" - You can set notification settings per channel on most devices (e.g. display toast, sounds, etc.)
+        "group": "Group" - All notifications with the same group tag should be grouped together (behaviour differs by device).
+        "tag": "Tag" - You can use the tag to dismiss old notifications so that there are no repeats (see below).
+      selector:
+        text:
+          multiline: true
+      default: ""
+
+    Inotify_service_dismiss:
+      name: Dismiss old notifications
+      description: >-
+        If turned on will dismiss old notifications, only 1 at a time. Requires tag to be set in service data
+        and provided below. Default: false/ off
+      selector:
+        boolean:
+      default: false
+    Inotify_service_tag:
+      name: Dismiss tag
+      description: >-
+        The tag required to dismiss old notifications. This should be the same as in the service data.
+        Default: (blank)
+      selector:
+        text:
+      default: ""
+
+    Ipersistent_notification_service:
+      name: Enable Persistent Notification Service
+      description: >-
+        If turned on, will provide a persistent notification via Home Assistant to all users.
+        This appears when logged into Home Assistant under the notification bell. Default: false/ off
+      selector:
+        boolean
+      default: false
+    Ipersistent_notification_service_notification_id:
+      name: Persistent Notification Service Notification ID
+      description: >-
+        If specified, each new persistent notification will replace the last. If left blank,
+        a new persistent notification is generated every time. Default: "unknown_device_notification"
+      selector:
+        text:
+      default: "unknown_device_notification"
+
+    Inotification_title:
+      name: Notification Title
+      description: The title to be displayed for your notifications (common among all platforms).
+      selector:
+        text:
+      default: "Unknown Device(s) detected"
+
+    Inotification_message:
+      name: Notification Message
+      description: >-
+        The message to be displayed for your notifications (common among all platforms).
+        Leave blank to use the default message which is:
+        [Connect Enabled]: The following unknown devices have connected to the network:
+        /{/{ connected /}/}
+        [Disconnect Enabled]: The following unknown devices have disconnected from the network:
+        /{/{ disconnected /}/}
+        The above mustache templates may also be used in your custom messages.
+      selector:
+        text:
+          multiline: true
+      default: ""
+
+mode: single
+
+trigger: 
+  - platform: state
+    entity_id: !input edgeos_sensor
+    attribute: leased
+
+action:
+  - variables:
+      new_dict: "{{ trigger.to_state.attributes.leased | default({}) }}"
+      old_dict: "{{ trigger.from_state.attributes.leased | default({}) }}"
+      connected: >-
+        {%- for item in new_dict %}
+        {%- if item in old_dict %}
+        {%- else %}
+        {{- item ~ ' - hostname: ' ~ new_dict[item].name ~ ', MAC: ' ~ new_dict[item].MAC ~ '\n' }}
+        {%- endif %}
+        {%- endfor %}
+      disconnected: >-
+        {%- for item in new_dict %}
+        {%- if item in old_dict %}
+        {{- item ~ ' - hostname: ' ~ new_dict[item].name ~ ', MAC: ' ~ new_dict[item].MAC ~ '\n' }}
+        {%- else %}
+        {%- endif %}
+        {%- endfor %}
+      notify_service_target: !input Inotify_service_target
+      notify_service: >-
+        {% set notify = namespace(services=[]) %}
+        {% for device in notify_service_target %}
+          {% set notify.services = notify.services + ["notify.mobile_app_" + device] %}
+        {% endfor %}
+        {{ notify.services }}
+      notification_title_override: !input Inotification_title
+      notification_title: >-
+        {% if notification_title_override %}
+        {{ notification_title_override }}
+        {% else %}
+        Unknown Device(s) Detected
+        {% endif %}
+      connect_enable: !input Iconnect_enable
+      disconnect_enable: !input Iconnect_disable
+      notification_message_override: !input Inotification_message 
+      notify_message: >-
+        {% if notification_message_override %}
+        {{ notification_message_override }}
+        {% else %}
+        {%- if connect_enable %}
+        {%- raw %}
+        {%- if connected %}
+        The following unknown devices have connected to the network:
+        {{ connected }}
+        {%- endif %}
+        {%- endraw %}
+        {%- endif %}
+        {%- if disconnect_enable %}
+        {%- raw %}
+        {%- if disconnected %}
+        The following unknown devices have disconnected from the network:
+        {{ disconnected }}
+        {%- endif %}
+        {%- endraw %}
+        {%- endif %}
+        {%- endif %}
+  - repeat:
+      for_each: >-
+        {{
+          notify_service | list
+        }}
+      sequence:
+        - service: '{{ repeat.item }}'
+          message: 'clear_notification'
+          data:
+            tag: !input Inotify_service_tag
+          enabled: !input Inotify_service_dismiss
+  - if: '{{ notify_message is defined and notify_message is string and notify_message != "" }}'
+    then:
+      - repeat:
+          for_each: >-
+            {{
+              notify_service | list
+            }}
+          sequence:
+            - service: '{{ repeat.item }}'
+              message: '{{ notify_message }}'
+              title: '{{ notify_title }}'
+              data: !input Inotify_service_data
+              enabled: !input Inotify_service
+      - service: notify.persistent_notification
+        message: '{{ notify_message }}'
+        title: '{{ notify_title }}'
