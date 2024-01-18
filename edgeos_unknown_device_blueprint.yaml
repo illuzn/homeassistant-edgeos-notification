@@ -213,7 +213,7 @@ action:
         {%- if connected is defined and connected is string and connected != "" %}
         true
         {%- elif disconnect_enable %}
-        {%- if disconnected is defined and disconnected is string and disconnected !- "" %}
+        {%- if disconnected is defined and disconnected is string and disconnected != "" %}
         true
         {%- else %}
         false
