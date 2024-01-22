@@ -15,3 +15,13 @@ Import `edgeos_unknown_device_blueprint.yaml` yourself manually or:
 [![Import blueprint to Home Assistant](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Filluzn%2Fhomeassistant-edgeos-notification%2Fblob%2Fmain%2Fedgeos_unknown_device_blueprint.yaml)
 
 To update your blueprint, in Home Assistant, open the dropdown menu next to this blueprint and select "Re-import blueprint".
+
+## ? Entries
+
+If you are like me you have a lot of entries with a ? as their hostname. This is fairly normal and many devices do not report a hostname for whatever reason.
+If you are using DNSMasq for DHCP/ DNS you are in luck. It is easy to add aliases to these for easy recognition.
+From the EdgeOS CLI enter:
+```
+set service dns forwarding options "dhcp-host=aa:bb:cc:dd:ee:ff,ALIAS_HERE"
+```
+[More details here - credits to Caius Theory](https://caiustheory.com/fix-edgerouter-dhcp-entries/). 
