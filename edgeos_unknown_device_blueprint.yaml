@@ -162,11 +162,11 @@ action:
     disconnect_enable: !input Idisconnect_enable
     notification_message_override: !input Inotification_message
     notification_message: '{% if notification_message_override %} {{ notification_message_override
-      }} {% else %} {%- if connect_enable %} {%- raw %} {%- if connected %} The following
+      }} {% else %} {%- if connect_enable %} {%- if connected != "" %} The following
       unknown devices have connected to the network: {{ connected }} {%- endif %}
-      {%- endraw %} {%- endif %} {%- if disconnect_enable %} {%- raw %} {%- if disconnected
+      {%- endif %} {%- if disconnect_enable %} {%- if disconnected != ""
       %} The following unknown devices have disconnected from the network: {{ disconnected
-      }} {%- endif %} {%- endraw %} {%- endif %} {%- endif %}'
+      }} {%- endif %} {%- endif %} {%- endif %}'
     change_detected: >-
         {%- if connect_enable %}
         {%- if connected is defined and connected is string and connected != "" %}
@@ -195,7 +195,7 @@ action:
       - service: '{{ repeat.item }}'
         data:
           message: '{{ notification_message }}'
-          title: '{{ notification_message }}'
+          title: '{{ notification_title }}'
           data:
             channel: !input Inotify_service_data_channel
             group: !input Inotify_service_data_group
@@ -204,5 +204,5 @@ action:
   - service: notify.persistent_notification
     data:
       message: '{{ notification_message }}'
-      title: '{{ notification_message }}'
+      title: '{{ notification_title }}'
       notification_id: !input Ipersistent_notification_service_notification_id
