@@ -206,3 +206,6 @@ action:
       message: '{{ notification_message }}'
       title: '{{ notification_title }}'
       notification_id: !input Ipersistent_notification_service_notification_id
+      data:
+        notification_id: !input Ipersistent_notification_service_notification_id
+    enabled: !input Ipersistent_notification_service
