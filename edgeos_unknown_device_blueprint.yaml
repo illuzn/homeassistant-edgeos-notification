@@ -147,11 +147,14 @@ action:
 - variables:
     new_dict: '{{ trigger.to_state.attributes.leased | default({}) }}'
     old_dict: '{{ trigger.from_state.attributes.leased | default({}) }}'
-    connected: '{%- for item in new_dict %} {%- if item in old_dict %} {%- else %}
-      {{- item ~ '' - hostname: '' ~ new_dict[item].hostname ~ '', MAC: '' ~ new_dict[item].MAC
+    known_devices_macs: !input Iknown_devices_macs
+    connected: '{%- for item in new_dict %} {%- if item in old_dict %} 
+      {%- elif new_dict[item].mac in known_devices_macs %} {%- else %}
+      {{- item ~ '' - hostname: '' ~ new_dict[item].hostname ~ '', MAC: '' ~ new_dict[item].mac
       ~ ''\n'' }} {%- endif %} {%- endfor %}'
-    disconnected: '{%- for item in old_dict %} {%- if item in new_dict %} {%- else
-      %} {{- item ~ '' - hostname: '' ~ new_dict[item].hostname ~ '', MAC: '' ~ new_dict[item].MAC
+    disconnected: '{%- for item in old_dict %} {%- if item in new_dict %} 
+      {%- elif new_dict[item].mac in known_devices_macs %} {%- else %}
+      {{- item ~ '' - hostname: '' ~ new_dict[item].hostname ~ '', MAC: '' ~ new_dict[item].mac
       ~ ''\n'' }} {%- endif %} {%- endfor %}'
     notify_service_target: !input Inotify_service_target
     notify_service: "{% set notify = namespace(services=[]) %} {% for device in notify_service_target
