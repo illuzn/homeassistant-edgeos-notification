@@ -170,14 +170,10 @@ action:
       %} The following unknown devices have disconnected from the network: {{ disconnected
       }} {%- endif %} {%- endif %} {%- endif %}'
     change_detected: >-
-        {%- if connect_enable %}
-        {%- if connected is defined and connected is string and connected != "" %}
+        {%- if connect_enable and connected is defined and connected is string and connected != "" %}
         true
-        {%- endif %}
-        {%- elif disconnect_enable %}
-        {%- if disconnected is defined and disconnected is string and disconnected != "" %}
+        {%- elif disconnect_enable and disconnected is defined and disconnected is string and disconnected != "" %}
         true
-        {%- endif %}
         {%- else %}
         false
         {%- endif %}
