@@ -148,10 +148,10 @@ action:
     new_dict: '{{ trigger.to_state.attributes.leased | default({}) }}'
     old_dict: '{{ trigger.from_state.attributes.leased | default({}) }}'
     connected: '{%- for item in new_dict %} {%- if item in old_dict %} {%- else %}
-      {{- item ~ '' - hostname: '' ~ new_dict[item].name ~ '', MAC: '' ~ new_dict[item].MAC
+      {{- item ~ '' - hostname: '' ~ new_dict[item].hostname ~ '', MAC: '' ~ new_dict[item].MAC
       ~ ''\n'' }} {%- endif %} {%- endfor %}'
     disconnected: '{%- for item in old_dict %} {%- if item in new_dict %} {%- else
-      %} {{- item ~ '' - hostname: '' ~ new_dict[item].name ~ '', MAC: '' ~ new_dict[item].MAC
+      %} {{- item ~ '' - hostname: '' ~ new_dict[item].hostname ~ '', MAC: '' ~ new_dict[item].MAC
       ~ ''\n'' }} {%- endif %} {%- endfor %}'
     notify_service_target: !input Inotify_service_target
     notify_service: "{% set notify = namespace(services=[]) %} {% for device in notify_service_target
