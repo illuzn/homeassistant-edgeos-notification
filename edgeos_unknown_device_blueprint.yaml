@@ -152,7 +152,7 @@ action:
       {{- item ~ '' - hostname: '' ~ new_dict[item].hostname ~ '', MAC: '' ~ new_dict[item].mac
       ~ ''\n'' }} {%- endif %} {%- endfor %}'
     disconnected: '{%- for item in old_dict %} {%- if item in new_dict %} 
-      {%- elif new_dict[item].mac in known_devices_macs %} {%- else %}
+      {%- elif old_dict[item].mac in known_devices_macs %} {%- else %}
       {{- item ~ '' - hostname: '' ~ new_dict[item].hostname ~ '', MAC: '' ~ new_dict[item].mac
       ~ ''\n'' }} {%- endif %} {%- endfor %}'
     notify_service_target: !input Inotify_service_target
